@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Useless Silent Alarm</title>
+  <style>
+    :root{
+      --bg-1: #fff7f6;
+      --bg-2: #fff2e6;
+      --card: #fff;
+      --muted: #73808a;
+      --accent: #e11d48; /* destructive red */
+      --accent-2: #ff7a18;
+      --glass: rgba(255,255,255,0.7);
+    }
+
+    html,body{height:100%;margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:#0f172a;background:linear-gradient(135deg,var(--bg-1),var(--bg-2));}
+    .container{max-width:1000px;margin:28px auto;padding:20px;display:grid;grid-template-columns:1fr;gap:18px}
+    header{text-align:center}
+    h1{font-size:28px;margin:0 0 6px;display:flex;align-items:center;justify-content:center;gap:10px}
+    .badge{background:var(--accent);color:#fff;padding:6px 10px;border-radius:999px;font-weight:600;font-size:13px;display:inline-block;animation:badgePulse 1.6s infinite}
+    @keyframes badgePulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.06);padding:16px;border:1px solid rgba(15,23,42,0.03)}
+    .card h3{margin:0 0 6px;font-size:16px}
+    .muted{color:var(--muted);font-size:13px}
+
+    .button{
+      display:inline-flex;align-items:center;gap:8px;padding:14px 18px;border-radius:10px;border:0;cursor:pointer;font-weight:700;font-size:15px;
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;box-shadow:0 6px 18px rgba(225,29,72,0.18)
+    }
+    .button:disabled{opacity:0.6;cursor:not-allowed;filter:grayscale(0.3)}
+
+    .controls{display:flex;gap:12px;flex-wrap:wrap}
+
+    .meta{display:flex;gap:10px;align-items:center}
+    .pill{background:#f1f5f9;padding:6px 10px;border-radius:999px;font-weight:600;color:#0f172a;font-size:13px}
+
+    /* siren visual */
+    .siren-wrap{height:80px;display:flex;align-items:center;justify-content:center;gap:18px}
+    .siren{
+      width:60px;height:60px;border-radius:50%;background:linear-gradient(180deg,#fff,#ffe9ea);box-shadow:inset 0 -6px 18px rgba(0,0,0,0.04);
+      display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--accent)
+    }
+    .flash-left,.flash-right{
+      width:18px;height:18px;border-radius:4px;background:linear-gradient(180deg,#fff6f7,#ffefef);
+      box-shadow:0 6px 20px rgba(225,29,72,0.12);
+    }
+    .flashing { animation:flashBG 0.9s infinite linear; }
+    @keyframes flashBG {
+      0%{box-shadow:0 0 0 0 rgba(225,29,72,0.22)}
+      50%{box-shadow:0 0 24px 6px rgba(225,29,72,0.14)}
+      100%{box-shadow:0 0 0 0 rgba(225,29,72,0.22)}
+    }
+    .flash-left.on{animation:flashLeft 0.5s infinite}
+    .flash-right.on{animation:flashRight 0.5s infinite}
+    @keyframes flashLeft{0%{background:#fff6f7}50%{background:#ffd6db}100%{background:#fff6f7}}
+    @keyframes flashRight{0%{background:#fff6f7}50%{background:#ffc6cf}100%{background:#fff6f7}}
+
+    /* toast */
+    .toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px;z-index:9999}
+    .toast{background:var(--card);border-left:6px solid var(--accent);padding:12px 14px;border-radius:8px;box-shadow:0 8px 20px rgba(2,6,23,0.08);min-width:260px}
+    .toast .title{font-weight:700;margin-bottom:4px}
+    .toast .desc{font-size:13px;color:var(--muted)}
+
+    /* fake notification "sent" panel */
+    .notify-list{display:flex;flex-direction:column;gap:8px}
+    .notify-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff7f6;border-radius:8px;border:1px dashed rgba(0,0,0,0.04)}
+    .notify-item .left p{margin:0;font-weight:600}
+    .notify-item .left .small{font-size:13px;color:var(--muted)}
+
+    /* recent */
+    .recent-list{display:flex;flex-direction:column;gap:8px}
+    .recent-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:#f8fafc;border-radius:8px}
+
+    footer{text-align:center;color:var(--muted);font-size:13px;margin-top:8px}
+
+    /* responsive */
+    @media (max-width:860px){
+      .grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>
+        🔊 <span>“Silent” Alarm System</span>
+      </h1>
+      <div style="margin-top:8px" class="muted">The world's loudest silent alarm — totally silent, visually dramatic.</div>
+      <div style="margin-top:8px"><span class="badge">COMPLETELY USELESS</span></div>
+    </header>
+
+    <main class="grid">
+      <!-- Main Panel -->
+      <section class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div>
+            <h3>Emergency Response Center</h3>
+            <div class="muted">Triggers visual alerts, fake notifications, and silly toasts — no sound.</div>
+          </div>
+          <div id="statusPill" class="pill">Idle</div>
+        </div>
+
+        <div class="siren-wrap" id="sirenWrap" aria-hidden="true">
+          <div class="flash-left" id="flashLeft"></div>
+          <div class="siren" id="sirenDot">!</div>
+          <div class="flash-right" id="flashRight"></div>
+        </div>
+
+        <div class="controls" style="margin-top:8px">
+          <button class="button" id="btnMedical" data-type="Medical Emergency">⚠️ Medical (Loud)</button>
+          <button class="button" id="btnSecurity" data-type="Security Alert">🔔 Security (Louder)</button>
+          <button class="button" id="btnFire" data-type="Fire Emergency">🔥 Fire (Loudest)</button>
+          <button class="button" id="btnHelp" data-type="General Help">📢 Help (Deafening)</button>
+        </div>
+
+        <div style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div class="meta">Alarms triggered: <div id="alarmCount" class="pill" style="margin-left:8px">0</div></div>
+          <div class="meta"><div class="pill">3s Duration</div></div>
+        </div>
+
+        <div style="margin-top:10px" class="muted">⚠️ Warning: This alarm is so silent, everyone will still see it.</div>
+      </section>
+
+      <!-- Contacts & Recent -->
+      <aside style="display:flex;flex-direction:column;gap:12px">
+        <div class="card">
+          <h3 style="margin-bottom:8px">"Emergency" Contacts</h3>
+          <div class="notify-list" id="contactsList">
+            <!-- filled by JS -->
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:8px">Recent "Silent" Activities</h3>
+          <div class="recent-list" id="recentList">
+            <!-- filled by JS -->
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <div>Disclaimer: This alarm is as silent as a marching band in a library.</div>
+      <div style="margin-top:6px;color:#b91c1c;font-weight:700">Pro tip: For real emergencies, call your local emergency number instead.</div>
+    </footer>
+  </div>
+
+  <!-- toast container -->
+  <div class="toasts" id="toasts" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    // DATA
+    const emergencyContacts = [
+      { name: "Mom", number: "555-0123", note: "Will lecture you" },
+      { name: "Pizza Palace", number: "555-PIZZA", note: "Actually useful" },
+      { name: "Ex-Boyfriend", number: "555-DRAMA", note: "Blocked you" },
+      { name: "Boss", number: "555-WORK", note: "Will fire you" }
+    ];
+
+    const recentAlarmsSeed = [
+      { time: "2 minutes ago", type: "False Emergency", status: "Everyone notified" },
+      { time: "5 minutes ago", type: "Accidental", status: "Woke up neighbors" },
+      { time: "10 minutes ago", type: "Testing", status: "Called 911 by mistake" }
+    ];
+
+    // STATE (persist count)
+    const ALARM_KEY = "uselessSilentAlarmCount_v1";
+    let alarmCount = Number(localStorage.getItem(ALARM_KEY) || 0);
+
+    // UI elements
+    const alarmCountEl = document.getElementById("alarmCount");
+    const statusPill = document.getElementById("statusPill");
+    const sirenWrap = document.getElementById("sirenWrap");
+    const sirenDot = document.getElementById("sirenDot");
+    const flashLeft = document.getElementById("flashLeft");
+    const flashRight = document.getElementById("flashRight");
+    const toastsEl = document.getElementById("toasts");
+    const contactsList = document.getElementById("contactsList");
+    const recentList = document.getElementById("recentList");
+
+    // init UI
+    alarmCountEl.textContent = alarmCount;
+    function renderContacts(){
+      contactsList.innerHTML = "";
+      emergencyContacts.forEach(c => {
+        const item = document.createElement("div");
+        item.className = "notify-item";
+        item.innerHTML = `
+          <div class="left">
+            <p>${escapeHtml(c.name)}</p>
+            <div class="small">${escapeHtml(c.number)} · ${escapeHtml(c.note)}</div>
+          </div>
+          <div class="right pill">Contact</div>
+        `;
+        contactsList.appendChild(item);
+      });
+    }
+    function renderRecent(list){
+      recentList.innerHTML = "";
+      list.forEach(r => {
+        const it = document.createElement("div");
+        it.className = "recent-item";
+        it.innerHTML = `<div><strong>${escapeHtml(r.type)}</strong><div class="muted">${escapeHtml(r.time)}</div></div><div style="color:#b91c1c;font-weight:700">${escapeHtml(r.status)}</div>`;
+        recentList.appendChild(it);
+      });
+    }
+    renderContacts();
+    renderRecent(recentAlarmsSeed);
+
+    // helpers
+    function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+    function pushToast(title, desc, duration = 4000){
+      const t = document.createElement("div");
+      t.className = "toast";
+      t.innerHTML = `<div class="title">${escapeHtml(title)}</div><div class="desc">${escapeHtml(desc)}</div>`;
+      toastsEl.appendChild(t);
+      setTimeout(()=>{ t.style.opacity = "0"; t.style.transform = "translateX(8px)"; }, duration - 300);
+      setTimeout(()=> t.remove(), duration);
+    }
+
+    function showVisualAlarm(type){
+      // set status
+      statusPill.textContent = "LOUDLY ALERTING EVERYONE";
+      statusPill.style.background = "linear-gradient(90deg,var(--accent),var(--accent-2))";
+      statusPill.style.color = "#fff";
+
+      // enable flashing visuals
+      sirenWrap.classList.add("flashing");
+      flashLeft.classList.add("on");
+      flashRight.classList.add("on");
+      sirenDot.textContent = type[0] || "!";
+
+      // soft page flash (no sound)
+      document.documentElement.style.transition = "background-color 0.25s";
+      document.documentElement.style.backgroundColor = "#fff0f0";
+
+      setTimeout(()=> {
+        document.documentElement.style.backgroundColor = "";
+      }, 900);
+    }
+
+    function stopVisualAlarm(){
+      statusPill.textContent = "Idle";
+      statusPill.style.background = "";
+      statusPill.style.color = "";
+      sirenWrap.classList.remove("flashing");
+      flashLeft.classList.remove("on");
+      flashRight.classList.remove("on");
+      sirenDot.textContent = "!";
+    }
+
+    function fakeSendNotifications(type){
+      // Instead of real messages, we update a temporary visual list
+      const sent = emergencyContacts.map(c => `${c.name} (${c.number})`).slice(0,3);
+      const msg = `Sent "${type}" to ${sent.join(", ")}`;
+      pushToast("🔔 Notifications queued", msg, 5000);
+
+      // append to recent list for fun
+      recentAlarmsSeed.unshift({ time: "just now", type, status: "Notifications queued" });
+      if (recentAlarmsSeed.length > 8) recentAlarmsSeed.pop();
+      renderRecent(recentAlarmsSeed);
+    }
+
+    function triggerSilentAlarm(type){
+      // increment + persist
+      alarmCount += 1;
+      localStorage.setItem(ALARM_KEY, alarmCount);
+      alarmCountEl.textContent = alarmCount;
+
+      // show silent toast
+      pushToast("🚨 SILENT ALARM ACTIVATED!", `This is a completely silent ${type} — visually loud only.`, 4200);
+
+      // visuals on
+      showVisualAlarm(type);
+
+      // fake notifications after a moment
+      setTimeout(()=> fakeSendNotifications(type), 900);
+
+      // stop visuals after 3 seconds
+      setTimeout(()=> {
+        stopVisualAlarm();
+      }, 3000);
+    }
+
+    // wire up buttons
+    document.getElementById("btnMedical").addEventListener("click", ()=> triggerSilentAlarm("Medical Emergency"));
+    document.getElementById("btnSecurity").addEventListener("click", ()=> triggerSilentAlarm("Security Alert"));
+    document.getElementById("btnFire").addEventListener("click", ()=> triggerSilentAlarm("Fire Emergency"));
+    document.getElementById("btnHelp").addEventListener("click", ()=> triggerSilentAlarm("General Help"));
+
+    // optional: occasional random "accidental" triggers (kept very low)
+    setInterval(()=>{
+      if (Math.random() < 0.06){ // ~6% every 30s
+        triggerSilentAlarm("Accidental");
+      }
+    }, 30000);
+
+    // small accessibility: keyboard shortcuts
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "1") triggerSilentAlarm("Medical Emergency");
+      if (e.key === "2") triggerSilentAlarm("Security Alert");
+      if (e.key === "3") triggerSilentAlarm("Fire Emergency");
+      if (e.key === "4") triggerSilentAlarm("General Help");
+    });
+
+    // initial little welcome toast
+    pushToast("Welcome", "This alarm is silent. Press any of the big buttons to 'alert' visually.", 4200);
+
+  </script>
+</body>
+</html>
